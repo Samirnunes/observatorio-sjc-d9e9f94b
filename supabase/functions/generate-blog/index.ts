@@ -1,5 +1,5 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -33,10 +33,7 @@ serve(async (req) => {
     const keywordList = keywords.join(', ');
     const systemPrompt = `Você é um jornalista especializado em questões urbanas e políticas públicas de São José dos Campos. 
 Escreva artigos informativos, objetivos e bem fundamentados sobre temas importantes para a cidade.
-Os artigos devem ser acessíveis para cidadãos comuns, mas com profundidade analítica.`;
-
-    const userPrompt = `Escreva um artigo de blog sobre os seguintes temas relacionados a São José dos Campos: ${keywordList}
-
+Os artigos devem ser acessíveis para cidadãos comuns, mas com profundidade analítica.
 O artigo deve:
 - Ter entre 500-800 palavras
 - Incluir um título atraente
@@ -45,7 +42,11 @@ O artigo deve:
 - Sugerir possíveis soluções ou caminhos
 - Ter um tom profissional mas acessível
 
-Retorne apenas o conteúdo do artigo em formato HTML simples (use tags <h2>, <p>, <strong>, <em>).`;
+Retorne apenas o conteúdo do artigo em formato HTML simples (use tags <h2>, <p>, <strong>, <em>).
+NÃO coloque o artigo dentro de qualquer marcação de código, como html com crases simples ou triplas.
+`;
+
+    const userPrompt = `Escreva um artigo de blog sobre os seguintes temas relacionados a São José dos Campos: ${keywordList}`;
 
     console.log('Generating blog post with keywords:', keywordList);
 
