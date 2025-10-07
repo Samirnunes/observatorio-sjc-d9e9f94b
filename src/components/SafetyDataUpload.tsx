@@ -15,11 +15,49 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 
 const INCIDENT_TYPES = [
-  { value: "roubo", label: "Roubo" },
-  { value: "furto", label: "Furto" },
-  { value: "homicidio", label: "Homicídio" },
-  { value: "lesao_corporal", label: "Lesão Corporal (Agressão)" },
-  { value: "outros", label: "Outros" },
+  // --- Crimes Contra a Vida ---
+  { value: "homicidio_doloso", label: "Homicídio Doloso" },
+  { value: "homicidio_culposo", label: "Homicídio Culposo" },
+  { value: "homicidio_doloso_acidente_transito", label: "Homicídio Doloso por Acidente de Trânsito" },
+  { value: "homicidio_culposo_acidente_transito", label: "Homicídio Culposo por Acidente de Trânsito" },
+  { value: "tentativa_homicidio", label: "Tentativa de Homicídio" },
+  { value: "feminicidio", label: "Feminicídio" },
+  { value: "latrocinio", label: "Latrocínio (Roubo seguido de morte)" },
+  { value: "lesao_corporal_seguida_morte", label: "Lesão Corporal Seguida de Morte" },
+
+  // --- Crimes Contra a Liberdade Pessoal ---
+  { value: "ameaca", label: "Ameaça" },
+  { value: "sequestro_carcere_privado", label: "Sequestro e Cárcere Privado" },
+
+  // --- Crimes Contra o Patrimônio ---
+  { value: "roubo_geral", label: "Roubo (exceto veículos)" },
+  { value: "roubo_veiculo", label: "Roubo de Veículo" },
+  { value: "roubo_carga", label: "Roubo de Carga" },
+  { value: "roubo_banco", label: "Roubo a Banco" },
+  { value: "furto_geral", label: "Furto (exceto veículos)" },
+  { value: "furto_veiculo", label: "Furto de Veículo" },
+  { value: "extorsao", label: "Extorsão" },
+  { value: "estelionato", label: "Estelionato" },
+  { value: "receptacao", label: "Receptação" },
+  { value: "dano", label: "Dano ao Patrimônio" },
+
+  // --- Crimes Contra a Dignidade Sexual ---
+  { value: "estupro", label: "Estupro" },
+  { value: "estupro_vulneravel", label: "Estupro de Vulnerável" },
+  { value: "assedio_sexual", label: "Assédio Sexual" },
+  { value: "importunacao_sexual", label: "Importunação Sexual" },
+
+  // --- Crimes de Trânsito ---
+  { value: "lesao_corporal_dolosa_transito", label: "Lesão Corporal Dolosa no Trânsito" },
+  { value: "lesao_corporal_culposa_transito", label: "Lesão Corporal Culposa no Trânsito" },
+  { value: "embriaguez_ao_volante", label: "Embriaguez ao Volante" },
+
+  // --- Outros ---
+  { value: "trafico_drogas", label: "Tráfico de Drogas" },
+  { value: "porte_ilegal_arma", label: "Porte Ilegal de Arma de Fogo" },
+  { value: "violencia_domestica", label: "Violência Doméstica (Lei Maria da Penha)" },
+  { value: "desaparecimento_pessoa", label: "Desaparecimento de Pessoa" },
+  { value: "outro", label: "Outro" },
 ] as const;
 
 interface SafetyIncident {
