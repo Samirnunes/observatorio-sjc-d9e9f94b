@@ -26,12 +26,17 @@ CREATE TABLE public.safety_incidents (
   incident_type incident_type NOT NULL,
   latitude DECIMAL(10,8) NOT NULL,
   longitude DECIMAL(11,8) NOT NULL,
-  address TEXT,
-  neighborhood TEXT,
   incident_date TIMESTAMPTZ NOT NULL,
-  description TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Insert sample data with police stations
+INSERT INTO public.safety_incidents (incident_type, latitude, longitude, police_station, incident_date) VALUES
+('furto', -23.1795, -45.8870, '1º DP - Centro', NOW() - INTERVAL '5 days'),
+('roubo', -23.2030, -45.9025, '2º DP - Jardim Aquarius', NOW() - INTERVAL '3 days'),
+('furto', -23.1650, -45.8920, '3º DP - Vila Ema', NOW() - INTERVAL '2 days'),
+('homicidio', -23.2100, -45.8800, '4º DP - Parque Industrial', NOW() - INTERVAL '7 days'),
+('lesao_corporal', -23.1890, -45.8960, '5º DP - Bosque dos Eucaliptos', NOW() - INTERVAL '1 day');
 
 -- Create table for blog posts
 CREATE TABLE public.blog_posts (
@@ -140,11 +145,3 @@ INSERT INTO public.councilors (name, party, district, status, total_proposals, a
 ('Maria Santos', 'PMDB', 'Sul', 'active', 52, 40, 95.0, 9.1),
 ('José Ferreira', 'PSB', 'Leste', 'active', 29, 18, 76.5, 7.3),
 ('Patrícia Costa', 'PDT', 'Oeste', 'active', 41, 35, 90.0, 8.9);
-
--- Insert some sample safety incidents
-INSERT INTO public.safety_incidents (incident_type, latitude, longitude, neighborhood, incident_date, description) VALUES
-('furto', -23.1795, -45.8870, 'Centro', NOW() - INTERVAL '5 days', 'Furto de veículo'),
-('roubo', -23.2030, -45.9025, 'Jardim Aquarius', NOW() - INTERVAL '3 days', 'Roubo a residência'),
-('furto', -23.1650, -45.8920, 'Vila Ema', NOW() - INTERVAL '2 days', 'Furto em estabelecimento comercial'),
-('homicidio', -23.2100, -45.8800, 'Parque Industrial', NOW() - INTERVAL '7 days', 'Homicídio doloso'),
-('lesao_corporal', -23.1890, -45.8960, 'Bosque dos Eucaliptos', NOW() - INTERVAL '1 day', 'Lesão corporal grave');
