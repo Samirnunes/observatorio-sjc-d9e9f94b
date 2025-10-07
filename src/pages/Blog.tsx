@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import Header from "@/components/Header";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, Calendar, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Calendar, Edit, Loader2, Sparkles, User } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface BlogPost {
   id: string;
@@ -26,11 +28,17 @@ const Blog = () => {
   const [keywords, setKeywords] = useState("");
   const { toast } = useToast();
 
+  const [manualTitle, setManualTitle] = useState("");
+  const [manualContent, setManualContent] = useState("");
+  const [manualKeywords, setManualKeywords] = useState("");
+  const [submittingManual, setSubmittingManual] = useState(false);
+
   useEffect(() => {
     fetchPosts();
   }, []);
 
   const fetchPosts = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('blog_posts')
@@ -39,7 +47,21 @@ const Blog = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPosts(data || []);
+
+      const cleanedPosts = data?.map(post => {
+        const cleanedContent = post.content.replace(/```(?:html)?/g, '').trim();
+        const titleMatch = cleanedContent.match(/<h2>(.*?)<\/h2>/);
+        const contentWithoutTitle = titleMatch ? cleanedContent.replace(titleMatch[0], '') : cleanedContent;
+        const title = titleMatch ? titleMatch[1] : post.title;
+
+        return {
+          ...post,
+          title: title,
+          content: contentWithoutTitle,
+        };
+      }) || [];
+
+      setPosts(cleanedPosts);
     } catch (error) {
       console.error('Error fetching posts:', error);
       toast({
@@ -90,16 +112,16 @@ const Blog = () => {
       }
 
       if (data?.content) {
-        // Extract title from content
-        const titleMatch = data.content.match(/<h2>(.*?)<\/h2>/);
+        const cleanedContent = data.content.replace(/```(?:html)?/g, '').trim();
+        const titleMatch = cleanedContent.match(/<h2>(.*?)<\/h2>/);
         const title = titleMatch ? titleMatch[1] : 'Artigo Gerado';
+        const contentWithoutTitle = titleMatch ? cleanedContent.replace(titleMatch[0], '') : cleanedContent;
         
-        // Save to database
         const { error: insertError } = await supabase
           .from('blog_posts')
           .insert({
             title,
-            content: data.content,
+            content: contentWithoutTitle,
             keywords: keywordArray,
             author_name: 'IA do Observatório',
             published: true
@@ -127,12 +149,58 @@ const Blog = () => {
     }
   };
 
+  const handleManualSubmit = async () => {
+    if (!manualTitle.trim() || !manualContent.trim()) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Título e conteúdo são necessários para publicar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSubmittingManual(true);
+    try {
+      const keywordArray = manualKeywords.split(',').map(k => k.trim()).filter(k => k);
+
+      const { error } = await supabase
+        .from('blog_posts')
+        .insert({
+          title: manualTitle,
+          content: `<p>${manualContent.replace(/\n/g, '</p><p>')}</p>`,
+          keywords: keywordArray,
+          author_name: 'Equipe do Observatório', // TODO: Get from logged in user
+          published: true
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Artigo publicado!",
+        description: "Seu artigo foi publicado com sucesso.",
+      });
+
+      setManualTitle("");
+      setManualContent("");
+      setManualKeywords("");
+      fetchPosts();
+    } catch (error) {
+      console.error('Error submitting post:', error);
+      toast({
+        title: "Erro ao publicar artigo",
+        description: "Não foi possível publicar o seu artigo. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmittingManual(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-1">
-        {/* Hero */}
         <section className="bg-gradient-to-r from-primary to-secondary py-16">
           <div className="container">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
@@ -144,10 +212,9 @@ const Blog = () => {
           </div>
         </section>
 
-        {/* AI Generator */}
         <section className="py-12 bg-gradient-to-b from-background to-muted/30">
-          <div className="container">
-            <Card className="shadow-elevated border-primary/20 max-w-3xl mx-auto">
+          <div className="container grid gap-8 md:grid-cols-2 max-w-6xl mx-auto">
+            <Card className="shadow-elevated border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
@@ -156,11 +223,11 @@ const Blog = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Digite palavras-chave sobre temas da cidade (separadas por vírgula) e a IA gerará um artigo automaticamente.
+                  Digite palavras-chave (separadas por vírgula) e a IA gerará um artigo.
                 </p>
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Ex: transporte público, mobilidade urbana, sustentabilidade"
+                    placeholder="Ex: transporte público, mobilidade"
                     value={keywords}
                     onChange={(e) => setKeywords(e.target.value)}
                     disabled={generating}
@@ -172,24 +239,70 @@ const Blog = () => {
                     className="gap-2"
                   >
                     {generating ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Gerando...
-                      </>
+                      <><Loader2 className="h-4 w-4 animate-spin" /> Gerando...</>
                     ) : (
-                      <>
-                        <Sparkles className="h-4 w-4" />
-                        Gerar
-                      </>
+                      <><Sparkles className="h-4 w-4" /> Gerar</>
                     )}
                   </Button>
                 </div>
               </CardContent>
             </Card>
+
+            <Card className="shadow-elevated">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Edit className="h-5 w-5" />
+                  Escrever Artigo Manualmente
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="manual-title">Título</Label>
+                  <Input 
+                    id="manual-title"
+                    placeholder="Título do seu artigo"
+                    value={manualTitle}
+                    onChange={e => setManualTitle(e.target.value)}
+                    disabled={submittingManual}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="manual-content">Conteúdo</Label>
+                  <Textarea
+                    id="manual-content"
+                    placeholder="Escreva seu artigo aqui. O conteúdo será formatado como parágrafos."
+                    value={manualContent}
+                    onChange={e => setManualContent(e.target.value)}
+                    disabled={submittingManual}
+                    rows={5}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="manual-keywords">Palavras-chave (separadas por vírgula)</Label>
+                  <Input 
+                    id="manual-keywords"
+                    placeholder="Ex: segurança, câmeras, policiamento"
+                    value={manualKeywords}
+                    onChange={e => setManualKeywords(e.target.value)}
+                    disabled={submittingManual}
+                  />
+                </div>
+                <Button 
+                  onClick={handleManualSubmit} 
+                  disabled={submittingManual}
+                  className="gap-2 w-full"
+                >
+                  {submittingManual ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Publicando...</>
+                  ) : (
+                    <>Publicar Artigo</>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
-        {/* Blog Posts */}
         <section className="py-12">
           <div className="container">
             <h2 className="text-3xl font-bold mb-8">Artigos Publicados</h2>
@@ -201,7 +314,7 @@ const Blog = () => {
             ) : posts.length === 0 ? (
               <Card className="p-12 text-center">
                 <p className="text-muted-foreground">
-                  Nenhum artigo publicado ainda. Use o gerador acima para criar o primeiro!
+                  Nenhum artigo publicado ainda. Use os formulários acima para criar.
                 </p>
               </Card>
             ) : (
@@ -235,7 +348,7 @@ const Blog = () => {
                     </CardHeader>
                     <CardContent>
                       <div 
-                        className="prose prose-sm max-w-none"
+                        className="prose prose-sm max-w-none blog-content"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                       />
                     </CardContent>

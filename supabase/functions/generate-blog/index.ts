@@ -43,7 +43,6 @@ O artigo deve:
 - Ter um tom profissional mas acessível
 
 Retorne apenas o conteúdo do artigo em formato HTML simples (use tags <h2>, <p>, <strong>, <em>).
-NÃO coloque o artigo dentro de qualquer marcação de código, como html com crases simples ou triplas.
 `;
 
     const userPrompt = `Escreva um artigo de blog sobre os seguintes temas relacionados a São José dos Campos: ${keywordList}`;
@@ -90,7 +89,10 @@ NÃO coloque o artigo dentro de qualquer marcação de código, como html com cr
     }
 
     const data = await response.json();
-    const generatedContent = data.choices[0].message.content;
+    let generatedContent = data.choices[0].message.content;
+
+    // Clean the content to remove markdown code blocks
+    generatedContent = generatedContent.replace("```html", '').replace("```", '').trim();
 
     console.log('Blog post generated successfully');
 
