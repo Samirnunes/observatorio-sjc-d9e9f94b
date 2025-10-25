@@ -112,10 +112,10 @@ const SafetyMap = () => {
               nature: row.incident_type,
               date: row.incident_date,
               location: {
-                lat: row.latitude,
-                lng: row.longitude
+                lat: Number(row.latitude),
+                lng: Number(row.longitude)
               },
-              delegacia: row.police_station
+              delegacia: row.neighborhood || 'Não informado'
             });
           });
         }

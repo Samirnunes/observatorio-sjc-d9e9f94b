@@ -104,12 +104,12 @@ const SafetyDataUpload = () => {
     try {
       const { error } = await supabase
         .from('safety_incidents')
-        .insert({
-          incident_type: parameters.nature,
+        .insert([{
+          incident_type: parameters.nature as any,
           latitude: selectedLocation.lat,
           longitude: selectedLocation.lng,
           incident_date: parameters.date,
-        });
+        }]);
 
       if (error) {
         console.error("Error inserting data:", error);
