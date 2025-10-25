@@ -1,7 +1,5 @@
-import { Database } from '@/integrations/supabase/types';
-
-export type SafetyIncidentType = Database['public']['Tables']['safety_incidents']['Row'];
-export type IncidentTypeEnum = Database['public']['Enums']['incident_type'];
+export type SafetyIncidentType = any;
+export type IncidentTypeEnum = string;
 
 export interface SafetyData {
   incidents: SafetyIncidentType[];
@@ -43,4 +41,23 @@ export interface ClusterInfo {
     nature: string;
     date: string;
   }[];
+}
+
+export interface ParsedSafetyData {
+  nature: string;
+  monthlyData: {
+    janeiro: number;
+    fevereiro: number;
+    marco: number;
+    abril: number;
+    maio: number;
+    junho: number;
+    julho: number;
+    agosto: number;
+    setembro: number;
+    outubro: number;
+    novembro: number;
+    dezembro: number;
+  };
+  total: number;
 }

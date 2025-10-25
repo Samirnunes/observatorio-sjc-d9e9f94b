@@ -35,8 +35,8 @@ export const parseSafetyDataFile = async (file: File): Promise<ParsedSafetyData[
         // Validate data
         const invalidRows = parsedData.filter(row => 
           !row.nature || 
-          Object.values(row.monthlyData).some(val => isNaN(val)) ||
-          isNaN(row.total)
+          Object.values(row.monthlyData).some(val => isNaN(Number(val))) ||
+          isNaN(Number(row.total))
         );
 
         if (invalidRows.length > 0) {
