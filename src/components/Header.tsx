@@ -1,58 +1,61 @@
-import { Building2, Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
+import { Menu } from "lucide-react";
+import { useState } from "react";
 
 const Header = () => {
-  const navItems = [
-    { label: "Início", href: "/" },
-    { label: "Atividade Parlamentar", href: "/parlamentar" },
-    { label: "Segurança Pública", href: "/seguranca" },
-    { label: "Blog", href: "/blog" },
-  ];
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-semibold">
-          <Building2 className="h-6 w-6 text-primary" />
-          <span className="text-lg">Observatório SJC</span>
+        <Link to="/" className="flex items-center space-x-2">
+          <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+            Observatório SJC
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <nav className="hidden md:flex items-center space-x-6">
+          <Link to="/" className="text-sm font-medium transition-colors hover:text-primary">
+            Início
+          </Link>
+          <Link to="/quem-somos" className="text-sm font-medium transition-colors hover:text-primary">
+            Quem Somos
+          </Link>
         </nav>
 
+        {/* Mobile Menu Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+
         {/* Mobile Navigation */}
-        <Sheet>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <nav className="flex flex-col gap-4 mt-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className="text-base font-medium text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {item.label}
-                </Link>
-              ))}
+        {isMenuOpen && (
+          <div className="absolute top-16 left-0 right-0 bg-background border-b md:hidden">
+            <nav className="container flex flex-col space-y-4 py-4">
+              <Link 
+                to="/" 
+                className="text-sm font-medium transition-colors hover:text-primary"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Início
+              </Link>
+              <Link 
+                to="/quem-somos" 
+                className="text-sm font-medium transition-colors hover:text-primary"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Quem Somos
+              </Link>
             </nav>
-          </SheetContent>
-        </Sheet>
+          </div>
+        )}
       </div>
     </header>
   );
